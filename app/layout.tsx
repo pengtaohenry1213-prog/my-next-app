@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AuthButton } from "@/components/auth-button";
+import { Suspense } from "react";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -44,7 +45,9 @@ export default function RootLayout({
               >
                 Todo App
               </Link>
-              <AuthButton />
+              <Suspense fallback={<div className="w-24 h-8 bg-white/20 rounded-lg animate-pulse" />}>
+                <AuthButton />
+              </Suspense>
             </div>
             {children}
           </div>
