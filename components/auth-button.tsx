@@ -1,29 +1,39 @@
 import Link from "next/link";
-import { Button } from "./ui/button";
-import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "./logout-button";
+import { createClient } from "@/lib/supabase/server";
+import { LogIn } from "lucide-react";
 
 export async function AuthButton() {
   const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const user = data?.user;
 
-  // You can also use getUser() which will be slower.
-  const { data } = await supabase.auth.getClaims();
+  if (user) {
+    return (
+      <div className="flex items-center gap-4">
+        <span className="text-white text-sm">
+          已登录 <strong>{user.email}</strong>
+        </span>
+        <LogoutButton />
+      </div>
+    );
+  }
 
-  const user = data?.claims;
-
-  return user ? (
-    <div className="flex items-center gap-4">
-      Hey, {user.email}!
-      <LogoutButton />
-    </div>
-  ) : (
+  return (
     <div className="flex gap-2">
-      <Button asChild size="sm" variant={"outline"}>
-        <Link href="/auth/login">Sign in</Link>
-      </Button>
-      <Button asChild size="sm" variant={"default"}>
-        <Link href="/auth/sign-up">Sign up</Link>
-      </Button>
+      <Link
+        href="/auth/login"
+        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white text-sm transition-colors"
+      >
+        <LogIn className="w-4 h-4" />
+        登录
+      </Link>
+      <Link
+        href="/auth/sign-up"
+        className="px-3 py-1.5 rounded-lg bg-white hover:bg-white/90 text-purple-600 text-sm font-medium transition-colors"
+      >
+        注册
+      </Link>
     </div>
   );
 }
