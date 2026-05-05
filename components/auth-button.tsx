@@ -1,12 +1,35 @@
+"use client";
+
 import Link from "next/link";
 import { LogoutButton } from "./logout-button";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 import { LogIn } from "lucide-react";
+import { useEffect, useState } from "react";
 
-export async function AuthButton() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  const user = data?.user;
+export function AuthButton() {
+  const [user, setUser] = useState<{ email?: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    
+    // 获取初始状态
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+      setLoading(false);
+    });
+
+    // 监听状态变化
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div className="w-20 h-8 bg-white/10 rounded-lg animate-pulse" />;
+  }
 
   if (user) {
     return (
